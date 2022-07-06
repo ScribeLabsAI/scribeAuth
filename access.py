@@ -35,12 +35,26 @@ def change_password(clientId: str, username: str, password: str, newPassword: st
         challengeParameters = responseInitiate.get("ChallengeParameters")
         userIdSRP = challengeParameters.get("USER_ID_FOR_SRP")
         requiredAttributes = challengeParameters.get("requiredAttributes")
-        response = respond_to_auth_challenge(
-            clientId, username, newPassword, session, userIdSRP, requiredAttributes)
-        print(success)
-        return response
+        try:
+            response = respond_to_auth_challenge(
+                clientId, username, newPassword, session, userIdSRP, requiredAttributes)
+            print(success)
+            return response
+        except Exception as e:
+            raise Exception(e)
 
-        # --------------------------------------------------------------------------------------------------------------
+
+# When a ConfirmationCode is received:
+def forgot_password(clientId: str, username: str, password: str, confirmationCode: str):
+    response = client.confirm_forgot_password(
+        ClientId=clientId,
+        Username=username,
+        ConfirmationCode=confirmationCode,
+        Password=password
+    )
+    return response
+
+    # --------------------------------------------------------------------------------------------------------------
 
 
 def initiate_auth(clientId: str, username: str, password: str) -> str:
@@ -100,5 +114,6 @@ clientId: str = read_next(f)
 username: str = read_next(f)
 password: str = read_next(f)
 newPassword: str = read_next(f)
+confirmationCode: str = read_next(f)
 
 print(change_password(clientId, username, password, newPassword))
