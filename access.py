@@ -2,6 +2,8 @@ from io import TextIOWrapper
 from typing import List
 import boto3
 
+# TODO: RETURN DICTIONARIES FOR ALL METHODS
+
 client = boto3.client('cognito-idp', region_name='eu-west-2')
 
 
@@ -46,13 +48,26 @@ def change_password(clientId: str, username: str, password: str, newPassword: st
 
 # When a ConfirmationCode is received:
 def forgot_password(clientId: str, username: str, password: str, confirmationCode: str):
-    response = client.confirm_forgot_password(
-        ClientId=clientId,
-        Username=username,
-        ConfirmationCode=confirmationCode,
-        Password=password
-    )
-    return response
+    try:
+        response = client.confirm_forgot_password(
+            ClientId=clientId,
+            Username=username,
+            ConfirmationCode=confirmationCode,
+            Password=password
+        )
+        return response
+    except Exception:
+        return "Data entered is incorrect"
+
+
+def get_tokens(clientId: str, username: str, password: str):
+    try:
+        response = initiate_auth(clientId, username, password)
+        challengeName = response.get('ChallengeName')
+        if challengeName == None:
+            return response
+    except Exception:
+        raise Exception("Please change your password")
 
     # --------------------------------------------------------------------------------------------------------------
 
@@ -116,4 +131,5 @@ password: str = read_next(f)
 newPassword: str = read_next(f)
 confirmationCode: str = read_next(f)
 
-print(change_password(clientId, username, password, newPassword))
+# print(change_password(clientId, username, password, newPassword))
+print(get_tokens(clientId, username, password))
