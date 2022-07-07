@@ -1,4 +1,5 @@
 from typing import List, TypedDict
+from typing_extensions import Unpack
 import boto3
 import botocore
 from botocore.config import Config
@@ -11,12 +12,12 @@ class Tokens(TypedDict):
 
 
 class RefreshToken(TypedDict):
-    REFRESH_TOKEN: str
+    refreshToken: str
 
 
 class UsernamePassword(TypedDict):
-    USERNAME: str
-    PASSWORD: str
+    username: str
+    password: str
 
 
 class CognitoAccess:
@@ -70,12 +71,12 @@ class CognitoAccess:
             raise Exception(
                 "UnauthorizedError: Invalid parameters. Could not reset password")
 
-    def get_tokens(self, **param: RefreshToken or UsernamePassword) -> Tokens:
+    def get_tokens(self, **param: Unpack[UsernamePassword] | Unpack[RefreshToken]) -> Tokens:
         authResult = 'AuthenticationResult'
-        refreshToken = param.get('REFRESH_TOKEN')
+        refreshToken = param.get('refreshToken')
         if refreshToken == None:
-            username = param.get('USERNAME')
-            password = param.get('PASSWORD')
+            username = param.get('username')
+            password = param.get('password')
             if username != None and password != None:
                 response = self.__initiate_auth(username, password)
                 result = response.get(authResult)
