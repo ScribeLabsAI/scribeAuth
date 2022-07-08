@@ -1,0 +1,8 @@
+setup.py
+scribeAuth/__init__.py
+scribeAuth/scribeAuth.py
+scribeAuth.egg-info/PKG-INFO
+scribeAuth.egg-info/SOURCES.txt
+scribeAuth.egg-info/dependency_links.txt
+scribeAuth.egg-info/requires.txt
+scribeAuth.egg-info/top_level.txt

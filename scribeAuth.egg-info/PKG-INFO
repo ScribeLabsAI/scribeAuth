@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: scribeAuth
+Version: 0.1.0
+Summary: Library to Authenticate on Scribe Labs
+Home-page: https://github.com/ScribeLabsAI/scribeAuth
+Author: Ailin Venerus
+Author-email: ailin@scribelabs.ai
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Security
+Classifier: Typing :: Typed
+
+UNKNOWN
+
