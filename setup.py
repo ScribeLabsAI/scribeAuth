@@ -1,9 +1,11 @@
 from setuptools import setup
+from scribeAuth import __version__
 
 setup(
     name='scribeAuth',
-    version='0.1.0',
-    description='Library to Authenticate on Scribe Labs',
+    python_requires='>3.10.0',
+    version=__version__,
+    description="Library to authenticate to Scribe's platform",
     url='https://github.com/ScribeLabsAI/scribeAuth',
     author='Ailin Venerus',
     author_email='ailin@scribelabs.ai',

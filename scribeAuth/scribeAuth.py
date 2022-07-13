@@ -21,8 +21,13 @@ class UsernamePassword(TypedDict):
 
 
 class ScribeAuth:
-
     def __init__(self, clientId: str):
+        """Construct an authorisation client.
+
+        Args
+        ----
+        clientId -- The client ID of the application provided by Scribe.
+        """
         config = Config(signature_version=botocore.UNSIGNED)
         self.clientUnsigned = boto3.client(
             'cognito-idp', config=config, region_name='eu-west-2')
