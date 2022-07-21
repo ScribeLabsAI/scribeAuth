@@ -106,18 +106,16 @@ class ScribeAuth:
                 raise Exception(
                     "UnauthorizedError: Invalid REFRESH_TOKEN. Could not get tokens")
 
-    def revoke_and_get_new_tokens(self, refreshToken: str, username: str, password: str) -> Tokens:
+
+    def revoke_refresh_token(self, refreshToken: str) -> bool:
         response = self.__revoke_token(refreshToken)
-        try:
-            response = self.__initiate_auth(username, password)
-            result = response.get('AuthenticationResult')
-            return {
-                'refreshToken': result.get('RefreshToken'),
-                'accessToken': result.get('AccessToken'),
-                'idToken': result.get('IdToken')
-            }
-        except:
-            raise Exception("UnauthorizedError: Invalid username or password")
+        statusCode = response.get('ResponseMetadata').get('HTTPStatusCode')
+        if(statusCode == 200):
+            return True
+        if(statusCode == 400):
+            raise Exception("BadRequest: Too many requests")
+        else:
+            raise Exception("InternalServerError: Try again later")
 
     def __initiate_auth(self, username: str, password: str):
         response = self.clientSigned.initiate_auth(
