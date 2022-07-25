@@ -10,7 +10,7 @@ setup(
     author='Ailin Venerus',
     author_email='ailin@scribelabs.ai',
     packages=['scribeAuth'],
-    install_requires=['boto3'],
+    install_requires=['boto3', 'typing_extensions'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
