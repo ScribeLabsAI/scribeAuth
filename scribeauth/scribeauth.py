@@ -6,13 +6,13 @@ from botocore.config import Config
 
 
 class Tokens(TypedDict):
-    refreshToken: str
-    accessToken: str
+    refresh_token: str
+    access_token: str
     idToken: str
 
 
 class RefreshToken(TypedDict):
-    refreshToken: str
+    refresh_token: str
 
 
 class UsernamePassword(TypedDict):
@@ -21,78 +21,78 @@ class UsernamePassword(TypedDict):
 
 
 class ScribeAuth:
-    def __init__(self, clientId: str):
+    def __init__(self, client_id: str):
         """Construct an authorisation client.
 
         Args
         ----
-        clientId -- The client ID of the application provided by Scribe.
+        client_id -- The client ID of the application provided by Scribe.
         """
         config = Config(signature_version=botocore.UNSIGNED)
-        self.clientUnsigned = boto3.client(
+        self.client_unsigned = boto3.client(
             'cognito-idp', config=config, region_name='eu-west-2')
-        self.clientSigned = boto3.client(
+        self.client_signed = boto3.client(
             'cognito-idp', region_name='eu-west-2')
-        self.clientId = clientId
+        self.client_id = client_id
 
-    def change_password(self, username: str, password: str, newPassword: str) -> bool: # pragma: no cover
+    def change_password(self, username: str, password: str, new_password: str) -> bool: # pragma: no cover
         """Creates a new password for a user.
 
         Args
         ----
         username -- Username (usually an email address).
         password -- Password associated with this username.
-        newPassword -- New password for this username.
+        new_password -- New password for this username.
         
         Returns
         ----
         bool
         """
         try:
-            responseInitiate = self.__initiate_auth(username, password)
+            response_initiate = self.__initiate_auth(username, password)
         except Exception:
             raise Exception("UnauthorizedError: authentication failed")
-        challengeName = responseInitiate.get('ChallengeName')
-        if challengeName == None:
+        challenge_name = response_initiate.get('ChallengeName')
+        if challenge_name == None:
             try:
-                authResult = responseInitiate.get('AuthenticationResult')
-                accessToken = authResult.get('AccessToken')
+                auth_result = response_initiate.get('AuthenticationResult')
+                access_token = auth_result.get('AccessToken')
                 self.__change_password_cognito(
-                    password, newPassword, accessToken)
+                    password, new_password, access_token)
                 return True
             except Exception:
                 raise Exception(
                     "UnauthorizedError: password has been changed too many times. Try later")
         else:
-            session = responseInitiate.get("Session")
-            challengeParameters = responseInitiate.get("ChallengeParameters")
-            userIdSRP = challengeParameters.get("USER_ID_FOR_SRP")
-            requiredAttributes = challengeParameters.get("requiredAttributes")
+            session = response_initiate.get("Session")
+            challenge_parameters = response_initiate.get("ChallengeParameters")
+            user_id_SRP = challenge_parameters.get("USER_ID_FOR_SRP")
+            required_attributes = challenge_parameters.get("requiredAttributes")
             try:
                 self.__respond_to_auth_challenge(
-                    username, newPassword, session, userIdSRP, requiredAttributes)
+                    username, new_password, session, user_id_SRP, required_attributes)
                 return True
             except Exception:
                 raise Exception("InternalServerError: try again later")
 
-    def forgot_password(self, username: str, password: str, confirmationCode: str) -> bool: # pragma: no cover
+    def forgot_password(self, username: str, password: str, confirmation_code: str) -> bool: # pragma: no cover
         """Allows a user to enter a confirmation code sent to their email to reset a forgotten password.
 
         Args
         ----
         username -- Username (usually an email address).
         password -- Password associated with this username.
-        confirmationCode -- Confirmation code sent to the user's email.
+        confirmation_code -- Confirmation code sent to the user's email.
         
         Returns
         ----
         bool
         """
         try:
-            self.clientSigned.confirm_forgot_password(
-                ClientId=self.clientId,
+            self.client_signed.confirm_forgot_password(
+                ClientId=self.client_id,
                 Username=username,
-                ConfirmationCode=confirmationCode,
+                ConfirmationCode=confirmation_code,
                 Password=password
             )
             return True
@@ -101,30 +101,30 @@ class ScribeAuth:
                 "UnauthorizedError: Invalid parameters. Could not reset password")
 
     def get_tokens(self, **param: Unpack[UsernamePassword] | Unpack[RefreshToken]) -> Tokens:
-        """A user gets their tokens (refreshToken, accessToken and idToken).
+        """A user gets their tokens (refresh_token, access_token and idToken).
 
         Args
         ----
         username -- Username (usually an email address).
         password -- Password associated with this username.
         Or
-        refreshToken -- Refresh token to use.
+        refresh_token -- Refresh token to use.
         
         Returns
         ----
-        Tokens -- Dictionary {"refreshToken": "str", "accessToken": "str", "idToken": "str"}
+        Tokens -- Dictionary {"refresh_token": "str", "access_token": "str", "idToken": "str"}
         """
-        authResult = 'AuthenticationResult'
-        refreshToken = param.get('refreshToken')
-        if refreshToken == None:
+        auth_result = 'AuthenticationResult'
+        refresh_token = param.get('refresh_token')
+        if refresh_token == None:
             username = param.get('username')
             password = param.get('password')
             if username != None and password != None:
                 response = self.__initiate_auth(username, password)
-                result = response.get(authResult)
+                result = response.get(auth_result)
                 return {
-                    'refreshToken': result.get('RefreshToken'),
-                    'accessToken': result.get('AccessToken'),
+                    'refresh_token': result.get('RefreshToken'),
+                    'access_token': result.get('AccessToken'),
                     'idToken': result.get('IdToken')
                 }
             else:
@@ -132,11 +132,11 @@ class ScribeAuth:
                     "UnauthorizedError: Invalid parameters. Could not get tokens")
         else:
             try:
-                response = self.__get_tokens_from_refresh(refreshToken)
-                result = response.get(authResult)
+                response = self.__get_tokens_from_refresh(refresh_token)
+                result = response.get(auth_result)
                 return {
-                    'refreshToken': refreshToken,
-                    'accessToken': result.get('AccessToken'),
+                    'refresh_token': refresh_token,
+                    'access_token': result.get('AccessToken'),
                     'idToken': result.get('IdToken')
                 }
             except:
@@ -144,66 +144,66 @@ class ScribeAuth:
                     "UnauthorizedError: Invalid REFRESH_TOKEN. Could not get tokens")
 
 
-    def revoke_refresh_token(self, refreshToken: str) -> bool:
+    def revoke_refresh_token(self, refresh_token: str) -> bool:
         """Revokes all of the access tokens generated by the specified refresh token.
         After the token is revoked, the user cannot use the revoked token.
 
         Args
         ----
-        refreshToken -- Refresh token to be revoked.
+        refresh_token -- Refresh token to be revoked.
         
         Returns
         ----
         bool
         """
-        response = self.__revoke_token(refreshToken)
-        statusCode = response.get('ResponseMetadata').get('HTTPStatusCode')
-        if(statusCode == 200):
+        response = self.__revoke_token(refresh_token)
+        status_code = response.get('ResponseMetadata').get('HTTPStatusCode')
+        if(status_code == 200):
             return True
-        if(statusCode == 400): # pragma: no cover
+        if(status_code == 400): # pragma: no cover
             raise Exception("BadRequest: Too many requests")
         else: # pragma: no cover
             raise Exception("InternalServerError: Try again later")
 
     def __initiate_auth(self, username: str, password: str):
-        response = self.clientSigned.initiate_auth(
-            ClientId=self.clientId,
+        response = self.client_signed.initiate_auth(
+            ClientId=self.client_id,
             AuthFlow='USER_PASSWORD_AUTH',
             AuthParameters={
                 'USERNAME': username,
                 'PASSWORD': password})
         return response
 
-    def __respond_to_auth_challenge(self, username: str, newPassword: str, session: str, userIdSRP: str, requiredAttributes: List[str]): # pragma: no cover
-        response = self.clientSigned.respond_to_auth_challenge(
-            ClientId=self.clientId,
+    def __respond_to_auth_challenge(self, username: str, new_password: str, session: str, user_id_SRP: str, required_attributes: List[str]): # pragma: no cover
+        response = self.client_signed.respond_to_auth_challenge(
+            ClientId=self.client_id,
             ChallengeName='NEW_PASSWORD_REQUIRED',
             Session=session,
             ChallengeResponses={
-                "USER_ID_FOR_SRP": userIdSRP,
-                "requiredAttributes": requiredAttributes,
+                "USER_ID_FOR_SRP": user_id_SRP,
+                "requiredAttributes": required_attributes,
                 "USERNAME": username,
-                "NEW_PASSWORD": newPassword
+                "NEW_PASSWORD": new_password
             },
         )
         return response
 
-    def __get_tokens_from_refresh(self, refreshToken: str):
-        response = self.clientSigned.initiate_auth(
-            ClientId=self.clientId,
+    def __get_tokens_from_refresh(self, refresh_token: str):
+        response = self.client_signed.initiate_auth(
+            ClientId=self.client_id,
             AuthFlow='REFRESH_TOKEN',
-            AuthParameters={'REFRESH_TOKEN': refreshToken})
+            AuthParameters={'REFRESH_TOKEN': refresh_token})
         return response
 
-    def __change_password_cognito(self, password: str, newPassword: str, accessToken: str): # pragma: no cover
-        response = self.clientSigned.change_password(
+    def __change_password_cognito(self, password: str, new_password: str, access_token: str): # pragma: no cover
+        response = self.client_signed.change_password(
             PreviousPassword=password,
-            ProposedPassword=newPassword,
-            AccessToken=accessToken)
+            ProposedPassword=new_password,
+            AccessToken=access_token)
         return response
 
-    def __revoke_token(self, refreshToken: str):
-        response = self.clientUnsigned.revoke_token(
-            Token=refreshToken,
-            ClientId=self.clientId)
+    def __revoke_token(self, refresh_token: str):
+        response = self.client_unsigned.revoke_token(
+            Token=refresh_token,
+            ClientId=self.client_id)
         return response

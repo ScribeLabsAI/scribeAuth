@@ -1,15 +1,14 @@
 from setuptools import setup
-from scribeAuth import __version__
 
 setup(
-    name='scribeAuth',
-    python_requires='>3.10.0',
-    version=__version__,
+    name='scribeauth',
+    python_requires='>=3.10.0',
+    version='1.0.0',
     description="Library to authenticate to Scribe's platform",
     url='https://github.com/ScribeLabsAI/scribeAuth',
     author='Ailin Venerus',
     author_email='ailin@scribelabs.ai',
-    packages=['scribeAuth'],
+    packages=['scribeauth'],
     install_requires=['boto3', 'typing-extensions'],
     classifiers=[
         'Development Status :: 4 - Beta',
