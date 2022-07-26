@@ -68,6 +68,13 @@ access.revoke_refresh_token('refresh_token')
 
 - In case you suspect that your refresh token has been leaked, you can revoke it with `revoke_token`. This will also invalidate any access/id token that has been issued with it. In order to get a new one, you'll need to use your username and password again.
 
+## Command line
+
+You can also use the package as follows for quick access to tokens:
+```bash
+python -m scribeauth --client_id clientid --username username --password password
+```
+
 ---
 
 To flag an issue, open a ticket on [Github](https://github.com/ScribeLabsAI/scribeauth/issues) and contact us on Intercom through the platform.
