@@ -35,7 +35,7 @@ class ScribeAuth:
             'cognito-idp', region_name='eu-west-2')
         self.clientId = clientId
 
-    def change_password(self, username: str, password: str, newPassword: str) -> bool:
+    def change_password(self, username: str, password: str, newPassword: str) -> bool: # pragma: no cover
         """Creates a new password for a user.
 
         Args
@@ -75,7 +75,7 @@ class ScribeAuth:
             except Exception:
                 raise Exception("InternalServerError: try again later")
 
-    def forgot_password(self, username: str, password: str, confirmationCode: str) -> bool:
+    def forgot_password(self, username: str, password: str, confirmationCode: str) -> bool: # pragma: no cover
         """Allows a user to enter a confirmation code sent to their email to reset a forgotten password.
 
         Args
@@ -160,9 +160,9 @@ class ScribeAuth:
         statusCode = response.get('ResponseMetadata').get('HTTPStatusCode')
         if(statusCode == 200):
             return True
-        if(statusCode == 400):
+        if(statusCode == 400): # pragma: no cover
             raise Exception("BadRequest: Too many requests")
-        else:
+        else: # pragma: no cover
             raise Exception("InternalServerError: Try again later")
 
     def __initiate_auth(self, username: str, password: str):
@@ -174,7 +174,7 @@ class ScribeAuth:
                 'PASSWORD': password})
         return response
 
-    def __respond_to_auth_challenge(self, username: str, newPassword: str, session: str, userIdSRP: str, requiredAttributes: List[str]):
+    def __respond_to_auth_challenge(self, username: str, newPassword: str, session: str, userIdSRP: str, requiredAttributes: List[str]): # pragma: no cover
         response = self.clientSigned.respond_to_auth_challenge(
             ClientId=self.clientId,
             ChallengeName='NEW_PASSWORD_REQUIRED',
@@ -195,7 +195,7 @@ class ScribeAuth:
             AuthParameters={'REFRESH_TOKEN': refreshToken})
         return response
 
-    def __change_password_cognito(self, password: str, newPassword: str, accessToken: str):
+    def __change_password_cognito(self, password: str, newPassword: str, accessToken: str): # pragma: no cover
         response = self.clientSigned.change_password(
             PreviousPassword=password,
             ProposedPassword=newPassword,

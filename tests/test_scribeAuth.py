@@ -25,6 +25,18 @@ class TestScribeAuthGetTokens(unittest.TestCase):
         with self.assertRaises(Exception):
             self.assertRaises(access.get_tokens(username=username, password='password'))
 
+    def test_get_tokens_empty_username_fails(self):
+        with self.assertRaises(Exception):
+            self.assertRaises(access.get_tokens(password=password))
+            
+    def test_get_tokens_empty_password_fails(self):            
+        with self.assertRaises(Exception):
+            self.assertRaises(access.get_tokens(username=username))
+
+    def test_get_tokens_empty_username_and_password_fails(self):
+        with self.assertRaises(Exception):
+            self.assertRaises(access.get_tokens())
+
     def test_get_tokens_refresh_token_successfully(self):
         refreshToken = generate_refresh_token_for_test()
         userTokens: Tokens = access.get_tokens(refreshToken=refreshToken)
@@ -79,4 +91,3 @@ def assert_tokens(self, userTokens):
     self.assertNotEqual(userTokens.get('refreshToken'), userTokens.get('accessToken'))
     self.assertNotEqual(userTokens.get('refreshToken'), userTokens.get('idToken'))
     self.assertNotEqual(userTokens.get('idToken'), userTokens.get('accessToken'))
-    
