@@ -8,7 +8,7 @@ from botocore.config import Config
 class Tokens(TypedDict):
     refresh_token: str
     access_token: str
-    idToken: str
+    id_token: str
 
 
 class RefreshToken(TypedDict):
@@ -101,7 +101,7 @@ class ScribeAuth:
                 "UnauthorizedError: Invalid parameters. Could not reset password")
 
     def get_tokens(self, **param: Unpack[UsernamePassword] | Unpack[RefreshToken]) -> Tokens:
-        """A user gets their tokens (refresh_token, access_token and idToken).
+        """A user gets their tokens (refresh_token, access_token and id_token).
 
         Args
         ----
@@ -112,7 +112,7 @@ class ScribeAuth:
         
         Returns
         ----
-        Tokens -- Dictionary {"refresh_token": "str", "access_token": "str", "idToken": "str"}
+        Tokens -- Dictionary {"refresh_token": "str", "access_token": "str", "id_token": "str"}
         """
         auth_result = 'AuthenticationResult'
         refresh_token = param.get('refresh_token')
@@ -125,7 +125,7 @@ class ScribeAuth:
                 return {
                     'refresh_token': result.get('RefreshToken'),
                     'access_token': result.get('AccessToken'),
-                    'idToken': result.get('IdToken')
+                    'id_token': result.get('IdToken')
                 }
             else:
                 raise Exception(
@@ -137,7 +137,7 @@ class ScribeAuth:
                 return {
                     'refresh_token': refresh_token,
                     'access_token': result.get('AccessToken'),
-                    'idToken': result.get('IdToken')
+                    'id_token': result.get('IdToken')
                 }
             except:
                 raise Exception(
