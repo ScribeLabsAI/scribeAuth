@@ -1,11 +1,17 @@
 from setuptools import setup
 
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
 setup(
     name='scribeauth',
     python_requires='>=3.10.0',
-    version='1.0.0',
+    version='1.0.1',
     description="Library to authenticate to Scribe's platform",
+    long_description=readme(),
     url='https://github.com/ScribeLabsAI/scribeAuth',
+    long_description_content_type='text/markdown',
     author='Ailin Venerus',
     author_email='ailin@scribelabs.ai',
     packages=['scribeauth'],
