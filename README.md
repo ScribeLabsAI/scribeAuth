@@ -78,4 +78,4 @@ python -m scribeauth --client_id clientid --username username --password passwor
 
 ---
 
-To flag an issue, open a ticket on [Github](https://github.com/ScribeLabsAI/scribeauth/issues) and contact us on Intercom through the platform.
+To flag an issue, open a ticket on [Github](https://github.com/ScribeLabsAI/ScribeAuth/issues) and contact us on Intercom through the platform.
