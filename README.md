@@ -71,10 +71,11 @@ access.revoke_refresh_token('refresh_token')
 ## Command line
 
 You can also use the package as follows for quick access to tokens:
+
 ```bash
 python -m scribeauth --client_id clientid --username username --password password
 ```
 
 ---
 
-To flag an issue, open a ticket on [Github](https://github.com/ScribeLabsAI/scribeauth/issues) and contact us on Intercom through the platform.
+To flag an issue, open a ticket on [Github](https://github.com/ScribeLabsAI/ScribeAuth/issues) and contact us on Intercom through the platform.

@@ -10,7 +10,7 @@ setup(
     version='1.0.1',
     description="Library to authenticate to Scribe's platform",
     long_description=readme(),
-    url='https://github.com/ScribeLabsAI/scribeAuth',
+    url='https://github.com/ScribeLabsAI/ScribeAuth',
     long_description_content_type='text/markdown',
     author='Ailin Venerus',
     author_email='ailin@scribelabs.ai',
