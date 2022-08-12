@@ -19,6 +19,25 @@ class UsernamePassword(TypedDict):
     username: str
     password: str
 
+class UnauthorizedException(Exception):
+    """
+    Exception raised when a user cannot perform an action.
+
+    Possible reasons:
+    - Username and/or Password are incorrect.
+    - Refresh_token is incorrect.
+    """
+    pass
+
+class TooManyRequestsException(Exception):
+    """
+    Exception raised when an action is performed by a user too many times in a short period.
+
+    Actions that could raise this exception:
+    - Changing a Password.
+    - Revoke Refresh_token.
+    """
+    pass
 
 class ScribeAuth:
     def __init__(self, client_id: str):
@@ -51,7 +70,7 @@ class ScribeAuth:
         try:
             response_initiate = self.__initiate_auth(username, password)
         except Exception:
-            raise Exception("UnauthorizedError: authentication failed")
+            raise UnauthorizedException("Username and/or Password are incorrect")
         challenge_name = response_initiate.get('ChallengeName')
         if challenge_name == None:
             try:
@@ -61,8 +80,7 @@ class ScribeAuth:
                     password, new_password, access_token)
                 return True
             except Exception:
-                raise Exception(
-                    "UnauthorizedError: password has been changed too many times. Try later")
+                raise TooManyRequestsException("Password has been changed too many times. Try again later")
         else:
             session = response_initiate.get("Session")
             challenge_parameters = response_initiate.get("ChallengeParameters")
@@ -97,8 +115,7 @@ class ScribeAuth:
             )
             return True
         except Exception:
-            raise Exception(
-                "UnauthorizedError: Invalid parameters. Could not reset password")
+            raise UnauthorizedException("Username, Password and/or Confirmation_code are incorrect. Could not reset password")
 
     def get_tokens(self, **param: Unpack[UsernamePassword] | Unpack[RefreshToken]) -> Tokens:
         """A user gets their tokens (refresh_token, access_token and id_token).
@@ -120,16 +137,18 @@ class ScribeAuth:
             username = param.get('username')
             password = param.get('password')
             if username != None and password != None:
-                response = self.__initiate_auth(username, password)
-                result = response.get(auth_result)
-                return {
-                    'refresh_token': result.get('RefreshToken'),
-                    'access_token': result.get('AccessToken'),
-                    'id_token': result.get('IdToken')
-                }
+                try:
+                    response = self.__initiate_auth(username, password)
+                    result = response.get(auth_result)
+                    return {
+                        'refresh_token': result.get('RefreshToken'),
+                        'access_token': result.get('AccessToken'),
+                        'id_token': result.get('IdToken')
+                    }
+                except:
+                    raise UnauthorizedException("Username and/or Password are incorrect. Could not get tokens")
             else:
-                raise Exception(
-                    "UnauthorizedError: Invalid parameters. Could not get tokens")
+                raise UnauthorizedException("Username and/or Password are missing. Could not get tokens")
         else:
             try:
                 response = self.__get_tokens_from_refresh(refresh_token)
@@ -140,8 +159,7 @@ class ScribeAuth:
                     'id_token': result.get('IdToken')
                 }
             except:
-                raise Exception(
-                    "UnauthorizedError: Invalid REFRESH_TOKEN. Could not get tokens")
+                raise UnauthorizedException("Refresh_token is incorrect. Could not get tokens")
 
 
     def revoke_refresh_token(self, refresh_token: str) -> bool:
@@ -161,7 +179,7 @@ class ScribeAuth:
         if(status_code == 200):
             return True
         if(status_code == 400): # pragma: no cover
-            raise Exception("BadRequest: Too many requests")
+            raise TooManyRequestsException("Too many requests. Try again later")
         else: # pragma: no cover
             raise Exception("InternalServerError: Try again later")
 
