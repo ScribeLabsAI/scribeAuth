@@ -60,11 +60,13 @@ class ScribeAuth:
         Args
         ----
         username -- Username (usually an email address).
+
         password -- Password associated with this username.
+
         new_password -- New password for this username.
         
         Returns
-        ----
+        -------
         bool
         """
         try:
@@ -99,11 +101,13 @@ class ScribeAuth:
         Args
         ----
         username -- Username (usually an email address).
+
         password -- Password associated with this username.
+        
         confirmation_code -- Confirmation code sent to the user's email.
         
         Returns
-        ----
+        -------
         bool
         """
         try:
@@ -123,12 +127,15 @@ class ScribeAuth:
         Args
         ----
         username -- Username (usually an email address).
+
         password -- Password associated with this username.
+
         Or
+
         refresh_token -- Refresh token to use.
         
         Returns
-        ----
+        -------
         Tokens -- Dictionary {"refresh_token": "str", "access_token": "str", "id_token": "str"}
         """
         auth_result = 'AuthenticationResult'
@@ -171,7 +178,7 @@ class ScribeAuth:
         refresh_token -- Refresh token to be revoked.
         
         Returns
-        ----
+        -------
         bool
         """
         response = self.__revoke_token(refresh_token)
