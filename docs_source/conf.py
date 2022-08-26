@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Scribe Auth'
-copyright = '2022, Ailin Venerus'
+copyright = '2022, Scribe Labs Limited'
 author = 'Ailin Venerus'
 release = '1.0.2'
 
