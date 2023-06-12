@@ -30,7 +30,6 @@ class Federation(TypedDict):
     client_id: str
     user_pool_id: str
     identity_pool_id: str
-    #fed_client: str # TODO: check types
 
 class UnauthorizedException(Exception):
     """
