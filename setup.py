@@ -7,7 +7,7 @@ def readme():
 setup(
     name='scribeauth',
     python_requires='>=3.10.0',
-    version='1.0.3',
+    version='1.0.4',
     description="Library to authenticate to Scribe's platform",
     long_description=readme(),
     url='https://github.com/ScribeLabsAI/ScribeAuth',
