@@ -3,7 +3,6 @@ from typing_extensions import Unpack
 import boto3
 import botocore
 from botocore.config import Config
-from botocore.exceptions import BotoCoreError
 
 
 class Tokens(TypedDict):
@@ -21,12 +20,12 @@ class UsernamePassword(TypedDict):
     password: str
 
 class Credentials(TypedDict):
-    access_key_id: str
-    secret_key: str
-    session_token: str
-    expiration: str
+    AccessKeyId: str
+    SecretKey: str
+    SessionToken: str
+    Expiration: str
 
-class Federation(TypedDict):
+class PoolConfiguration(TypedDict):
     client_id: str
     user_pool_id: str
     identity_pool_id: str
@@ -57,27 +56,28 @@ class MissingIdException(Exception):
 class UnknownException(Exception):
     pass
 
-def is_complete_credentials(cred: Credentials):
-    return cred and cred.access_key_id and cred.secret_key and cred.session_token
+def is_complete_credentials(cred: Credentials) -> bool:
+    return 'AccessKeyId' in cred and 'SecretKey' in cred and 'SessionToken' in cred
 
 class ScribeAuth:
-    def __init__(self, param: Union[Unpack[Federation], str]):
+    def __init__(self, param: Union[Unpack[PoolConfiguration], str]):
         """Construct an authorisation client.
 
         Args
         ----
-        Union[Unpack[Federation], str]
-        A parameter that can either be an instance of Federation or a string.
-
-        Federation:
+        Union[Unpack[PoolConfiguration], str]
+        A parameter that can either be an instance of PoolConfiguration or a string.
+        --
+        PoolConfiguration:
         
         client_id -- The client ID of the application provided by Scribe.
         
         user_pool_id -- The user pool ID provided by Scribe.
         
         identity_pool_id -- The identity pool ID provided by Scribe.
-        ----
-        .. deprecated:: Use the constructor with an object instead.
+        --
+        str:
+
         client_id -- The client ID of the application provided by Scribe.
         """
         config = Config(signature_version=botocore.UNSIGNED)
@@ -119,8 +119,8 @@ class ScribeAuth:
                     self.__change_password_cognito(
                         password, new_password, access_token)
                     return True
-                except Exception:
-                    raise TooManyRequestsException("Password has been changed too many times. Try again later")
+                except Exception as err:
+                    raise err
             else:
                 if not self.client_id:
                     raise MissingIdException("Missing client ID")
@@ -134,13 +134,13 @@ class ScribeAuth:
                     return True
                 except Exception:
                     raise Exception("InternalServerError: try again later")
-        except botocore.exceptions.NotAuthorizedException:
-            raise UnauthorizedException("Username and/or Password are incorrect.")
         except MissingIdException as err:
             raise err
         except TooManyRequestsException:
             raise TooManyRequestsException("Too many requests. Try again later")
-        except Exception:
+        except Exception as err:
+            if err.response['Error']['Code'] == 'NotAuthorizedException':
+                raise UnauthorizedException("Username and/or Password are incorrect.")
             raise err
 
     def forgot_password(self, username: str, password: str, confirmation_code: str) -> bool: # pragma: no cover
@@ -166,9 +166,9 @@ class ScribeAuth:
                 Password=password
             )
             return True
-        except botocore.exceptions.NotAuthorizedException:
-            raise UnauthorizedException("Username, Password and/or Confirmation_code are incorrect. Could not reset password")
         except Exception as err:
+            if err.response['Error']['Code'] == 'NotAuthorizedException':
+                raise UnauthorizedException("Username, Password and/or Confirmation_code are incorrect. Could not reset password")
             raise err
                 
 
@@ -233,11 +233,11 @@ class ScribeAuth:
             if not response.get('IdentityId'):
                 raise UnknownException('Could not retrieve federated id')
             return response.get('IdentityId')
-        except botocore.exceptions.NotAuthorizedException:
-            raise UnauthorizedException('Could not retrieve federated id')
-        except botocore.exceptions.TooManyRequestsException:
-            raise TooManyRequestsException('Too many requests. Try again later')
         except Exception as err:
+            if err.response['Error']['Code'] == 'NotAuthorizedException':
+                raise UnauthorizedException('Could not retrieve federated id')
+            if err.response['Error']['Code'] == 'TooManyRequestsException':
+                raise TooManyRequestsException('Too many requests. Try again later')
             raise err
     
 
@@ -245,20 +245,20 @@ class ScribeAuth:
         if not self.user_pool_id:
             raise MissingIdException('Missing user pool ID')
         try:
-            response = self.fed_client.get_id(
+            response = self.fed_client.get_credentials_for_identity(
                 IdentityId=id,
                 Logins={
                     f'cognito-idp.eu-west-2.amazonaws.com/{self.user_pool_id}': id_token
                 }
             )
-            if not is_complete_credentials(response.get('Credentials')):
+            if not is_complete_credentials(response['Credentials']):
                 raise UnknownException('Could not retrieve federated credentials')
-            return response.get('Credentials')
-        except botocore.exceptions.NotAuthorizedException:
-            raise UnauthorizedException('Could not retrieve federated credentials')
-        except botocore.exceptions.TooManyRequestsException:
-            raise TooManyRequestsException('Too many requests. Try again later')
+            return response['Credentials']
         except Exception as err:
+            if err.response['Error']['Code'] == 'NotAuthorizedException':
+                raise UnauthorizedException('Could not retrieve federated credentials')
+            if err.response['Error']['Code'] == 'TooManyRequestsException':
+                raise TooManyRequestsException('Too many requests. Try again later')
             raise err
 
     def __get_tokens_with_pair(self, username: str, password: str):
