@@ -62,16 +62,16 @@ access.revoke_refresh_token('refresh_token')
 
 ```python
 from scribeauth import ScribeAuth
-access = ScribeAuth({'client_id': client_id, 'user_pool_id': user_pool_id, 'identity_pool_id': identity_pool_id})
-access.get_federated_id('id_token')
+access = ScribeAuth({'client_id': your_client_id, 'user_pool_id': your_user_pool_id, 'identity_pool_id': your_identity_pool_id})
+access.get_federated_id('your_id_token')
 ```
 
 ### 6. Getting federated credentials
 
 ```python
 from scribeauth import ScribeAuth
-access = ScribeAuth({'client_id': client_id, 'user_pool_id': user_pool_id, 'identity_pool_id': identity_pool_id})
-access.get_federated_credentials('id', 'id_token')
+access = ScribeAuth({'client_id': your_client_id, 'user_pool_id': your_user_pool_id, 'identity_pool_id': your_identity_pool_id})
+access.get_federated_credentials('your_federated_id', 'your_id_token')
 ```
 
 ## Flow
