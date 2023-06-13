@@ -7,9 +7,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 client_id: str = os.environ.get("CLIENT_ID")
+client_id2: str = os.environ.get("CLIENT_ID2")
 username: str = os.environ.get("USER")
 password: str = os.environ.get("PASSWORD")
+password2: str = os.environ.get("PASSWORD2")
+user_pool_id: str = os.environ.get("USER_POOL_ID")
+federated_pool_id: str = os.environ.get("FEDERATED_POOL_ID")
+expected_federated_id: str = os.environ.get("FEDERATED_ID")
 access = ScribeAuth(client_id)
+pool_access = ScribeAuth({'client_id': client_id2, 'user_pool_id': user_pool_id, 'identity_pool_id': federated_pool_id})
 
 class TestScribeAuthGetTokens(unittest.TestCase):
 
@@ -79,6 +85,28 @@ class TestScribeAuthRevokeRefreshTokens(unittest.TestCase):
         user_tokens: Tokens = access.get_tokens(refresh_token=refresh_token)
         assert_tokens(self, user_tokens)
         self.assertEqual(refresh_token, user_tokens.get('refresh_token'))
+
+
+class TestScribeAuthFederatedCredentials(unittest.TestCase):
+
+    def test_get_federated_id_successfully(self):
+        user_tokens: Tokens = pool_access.get_tokens(username=username, password=password2)
+        id_token = user_tokens.get('id_token')
+        federated_id = pool_access.get_federated_id(id_token)
+        self.assertEqual(expected_federated_id, federated_id)
+        
+    def test_get_federated_id_fails(self):
+        with self.assertRaises(UnauthorizedException):
+            self.assertRaises(pool_access.get_federated_id('id_token'))
+
+    def test_get_federated_credentials_successfully(self):
+        user_tokens: Tokens = pool_access.get_tokens(username=username, password=password2)
+        id_token = user_tokens.get('id_token')
+        federated_credentials = pool_access.get_federated_credentials(expected_federated_id, id_token)
+        self.assertTrue(federated_credentials['AccessKeyId'])
+        self.assertTrue(federated_credentials['SecretKey'])
+        self.assertTrue(federated_credentials['SessionToken'])
+        self.assertTrue(federated_credentials['Expiration'])
 
 
 def generate_refresh_token_for_test():
