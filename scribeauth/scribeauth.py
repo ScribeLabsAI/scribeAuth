@@ -67,17 +67,21 @@ class ScribeAuth:
         ----
         Union[Unpack[PoolConfiguration], str]
         A parameter that can either be an instance of PoolConfiguration or a string.
-        --
-        PoolConfiguration:
         
+        ---
+
+        PoolConfiguration:
+        ---
         client_id -- The client ID of the application provided by Scribe.
         
         user_pool_id -- The user pool ID provided by Scribe.
         
         identity_pool_id -- The identity pool ID provided by Scribe.
-        --
-        str:
 
+        ---
+
+        str:
+        ---
         client_id -- The client ID of the application provided by Scribe.
         """
         config = Config(signature_version=botocore.UNSIGNED)
@@ -219,6 +223,16 @@ class ScribeAuth:
             raise Exception("InternalServerError: Try again later")
 
     def get_federated_id(self, id_token: str) -> str:
+        """A user gets their federated id.
+
+        Args
+        ----
+        id_token -- Id token to use.
+
+        Returns
+        -------
+        str
+        """
         if not self.user_pool_id:
             raise MissingIdException('Missing user pool ID')
         if not self.identity_pool_id:
@@ -242,6 +256,18 @@ class ScribeAuth:
     
 
     def get_federated_credentials(self, id: str, id_token:str) -> Credentials:
+        """A user gets their federated credentials (AccessKeyId, SecretKey and SessionToken).
+
+        Args
+        ----
+        id -- Federated id.
+
+        id_token -- Id token to use.
+
+        Returns
+        -------
+        Credentials -- Dictionary {"AccessKeyId": "str", "SecretKey": "str", "SessionToken": "str", "Expiration": "str"}
+        """
         if not self.user_pool_id:
             raise MissingIdException('Missing user pool ID')
         try:

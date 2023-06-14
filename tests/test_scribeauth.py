@@ -103,11 +103,16 @@ class TestScribeAuthFederatedCredentials(unittest.TestCase):
         user_tokens: Tokens = pool_access.get_tokens(username=username, password=password2)
         id_token = user_tokens.get('id_token')
         federated_credentials = pool_access.get_federated_credentials(expected_federated_id, id_token)
-        self.assertTrue(federated_credentials['AccessKeyId'])
-        self.assertTrue(federated_credentials['SecretKey'])
-        self.assertTrue(federated_credentials['SessionToken'])
-        self.assertTrue(federated_credentials['Expiration'])
+        self.assertTrue(federated_credentials.get('AccessKeyId'))
+        self.assertTrue(federated_credentials.get('SecretKey'))
+        self.assertTrue(federated_credentials.get('SessionToken'))
+        self.assertTrue(federated_credentials.get('Expiration'))
 
+    def test_get_federated_credentials_fails(self):
+        user_tokens: Tokens = pool_access.get_tokens(username=username, password=password2)
+        id_token = user_tokens.get('id_token')
+        with self.assertRaises(Exception):
+            self.assertRaises(pool_access.get_federated_credentials('id', id_token))
 
 def generate_refresh_token_for_test():
     return access.get_tokens(username=username, password=password).get('refresh_token')
