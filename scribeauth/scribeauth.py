@@ -3,6 +3,9 @@ from typing_extensions import Unpack
 import boto3
 import botocore
 from botocore.config import Config
+from botocore.auth import SigV4Auth
+from botocore.awsrequest import AWSRequest
+import botocore.session
 
 
 class Tokens(TypedDict):
@@ -286,6 +289,35 @@ class ScribeAuth:
             if err.response['Error']['Code'] == 'TooManyRequestsException':
                 raise TooManyRequestsException('Too many requests. Try again later')
             raise err
+        
+    def get_signature_for_request(self, request: AWSRequest, credentials: Credentials):
+        """A user gets a signature for a request.
+
+        Args
+        ----
+
+        request -- Request to send.
+
+        credentials -- Credentials for the signature creation.
+
+        Returns
+        -------
+        Headers -- Headers containing the signature for the request.
+        """
+        try:
+            session = botocore.session.Session()
+            session.set_credentials(access_key=credentials['AccessKeyId'], secret_key=credentials['SecretKey'], token=credentials['SessionToken'])
+            signer = SigV4Auth(
+                credentials=session.get_credentials(),
+                service_name='execute-api',
+                region_name='eu-west-2')
+            request.context["payload_signing_enabled"] = False
+            signer.add_auth(request=request)
+            prepped = request.prepare()
+            return prepped.headers
+        except Exception as err:
+            raise err
+      
 
     def __get_tokens_with_pair(self, username: str, password: str):
         auth_result = 'AuthenticationResult'
