@@ -101,7 +101,7 @@ access.get_signature_for_request(request='your_request', credentials='your_feder
 You can also use the package as follows for quick access to tokens:
 
 ```bash
-python -m scribeauth --client_id clientid --username username --password password
+python -m scribeauth --client_id clientid --user_pool_id user_pool_id --username username --password password
 ```
 
 ---
