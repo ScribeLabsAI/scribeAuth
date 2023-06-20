@@ -1,7 +1,7 @@
 import unittest
 from botocore.awsrequest import AWSRequest
 from scribeauth import ScribeAuth, Tokens
-from scribeauth.scribeauth import UnauthorizedException
+from scribeauth.scribeauth import MissingIdException, UnauthorizedException
 import os
 from dotenv import load_dotenv
 
@@ -13,9 +13,10 @@ username: str = os.environ.get("USER")
 password: str = os.environ.get("PASSWORD")
 password2: str = os.environ.get("PASSWORD2")
 user_pool_id: str = os.environ.get("USER_POOL_ID")
+user_pool_id2: str = os.environ.get("USER_POOL_ID2")
 federated_pool_id: str = os.environ.get("FEDERATED_POOL_ID")
-access = ScribeAuth(client_id)
-pool_access = ScribeAuth({'client_id': client_id2, 'user_pool_id': user_pool_id, 'identity_pool_id': federated_pool_id})
+access = ScribeAuth({'client_id': client_id, 'user_pool_id': user_pool_id})
+pool_access = ScribeAuth({'client_id': client_id2, 'user_pool_id': user_pool_id2, 'identity_pool_id': federated_pool_id})
 
 class TestScribeAuthGetTokens(unittest.TestCase):
 
@@ -98,6 +99,12 @@ class TestScribeAuthFederatedCredentials(unittest.TestCase):
     def test_get_federated_id_fails(self):
         with self.assertRaises(UnauthorizedException):
             self.assertRaises(pool_access.get_federated_id('id_token'))
+    
+    def test_get_federated_id_with_NO_identityPoolId_fails(self):
+        user_tokens: Tokens = access.get_tokens(username=username, password=password)
+        id_token = user_tokens.get('id_token')
+        with self.assertRaises(MissingIdException):
+            self.assertRaises(access.get_federated_id(id_token))
 
     def test_get_federated_credentials_successfully(self):
         user_tokens: Tokens = pool_access.get_tokens(username=username, password=password2)

@@ -63,43 +63,30 @@ def is_complete_credentials(cred: Credentials) -> bool:
     return 'AccessKeyId' in cred and 'SecretKey' in cred and 'SessionToken' in cred
 
 class ScribeAuth:
-    def __init__(self, param: Union[Unpack[PoolConfiguration], str]):
+    def __init__(self, param: PoolConfiguration):
         """Construct an authorisation client.
 
         Args
         ----
-        Union[Unpack[PoolConfiguration], str]
-        A parameter that can either be an instance of PoolConfiguration or a string.
-        
-        ---
-
         PoolConfiguration:
+
         ---
         client_id -- The client ID of the application provided by Scribe.
         
         user_pool_id -- The user pool ID provided by Scribe.
         
         identity_pool_id -- The identity pool ID provided by Scribe.
-
-        ---
-
-        str:
-        ---
-        client_id -- The client ID of the application provided by Scribe.
         """
         config = Config(signature_version=botocore.UNSIGNED)
         self.client_unsigned = boto3.client(
             'cognito-idp', config=config, region_name='eu-west-2')
         self.client_signed = boto3.client(
             'cognito-idp', region_name='eu-west-2')
-        self.fed_client = boto3.client('cognito-identity', region_name='eu-west-2')
-        if isinstance(param, str):
-            self.client_id = param
-        else:
-            self.client_id = param.get('client_id')
-            self.user_pool_id = param.get('user_pool_id')
-            self.identity_pool_id = param.get('identity_pool_id')
-
+        self.client_id = param.get('client_id')
+        self.user_pool_id = param.get('user_pool_id')
+        self.identity_pool_id = param.get('identity_pool_id')
+        if(param.get('identity_pool_id')):
+            self.fed_client = boto3.client('cognito-identity', region_name='eu-west-2')
 
     def change_password(self, username: str, password: str, new_password: str) -> bool: # pragma: no cover
         """Creates a new password for a user.
@@ -129,7 +116,7 @@ class ScribeAuth:
                 except Exception as err:
                     raise err
             else:
-                if not self.client_id:
+                if not hasattr(self, 'client_id'):
                     raise MissingIdException("Missing client ID")
                 session = response_initiate.get("Session")
                 challenge_parameters = response_initiate.get("ChallengeParameters")
@@ -236,10 +223,10 @@ class ScribeAuth:
         -------
         str
         """
-        if not self.user_pool_id:
+        if not hasattr(self, 'user_pool_id'):
             raise MissingIdException('Missing user pool ID')
-        if not self.identity_pool_id:
-            raise MissingIdException('Missing federated pool ID')
+        if not hasattr(self, 'fed_client'):
+            raise MissingIdException('Federated pool ID is not provided. Create a new ScribeAuth object using identity_pool_id')
         try:
             response = self.fed_client.get_id(
                 IdentityPoolId=self.identity_pool_id,
@@ -271,8 +258,10 @@ class ScribeAuth:
         -------
         Credentials -- Dictionary {"AccessKeyId": "str", "SecretKey": "str", "SessionToken": "str", "Expiration": "str"}
         """
-        if not self.user_pool_id:
+        if not hasattr(self, 'user_pool_id'):
             raise MissingIdException('Missing user pool ID')
+        if not hasattr(self, 'fed_client'):
+            raise MissingIdException('Federated pool ID is not provided. Create a new ScribeAuth object using identity_pool_id')
         try:
             response = self.fed_client.get_credentials_for_identity(
                 IdentityId=id,
@@ -334,7 +323,8 @@ class ScribeAuth:
                 raise UnauthorizedException("Username and/or Password are incorrect. Could not get tokens")
         else:
             raise UnauthorizedException("Username and/or Password are missing. Could not get tokens")
-       
+ 
+ 
     def __get_tokens_with_refresh(self, refresh_token: str):
         try:
             auth_result = 'AuthenticationResult'
