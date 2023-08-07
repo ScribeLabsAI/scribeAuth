@@ -35,7 +35,7 @@ bleach @ file:///opt/conda/conda-bld/bleach_1641577558959/work
 bokeh @ file:///C:/b/abs_d01xodyb9e/croot/bokeh_1684534031183/work
 boltons @ file:///C:/ci_311/boltons_1677729932371/work
 boto3==1.26.133
-botocore==1.29.133
+botocore==1.31.20
 Bottleneck @ file:///C:/ci_311/bottleneck_1676500016583/work
 brotlipy==0.7.0
 certifi==2023.5.7
