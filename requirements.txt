@@ -334,7 +334,7 @@ statsmodels @ file:///C:/ci_311/statsmodels_1677728225600/work
 sympy @ file:///C:/ci_311_rebuilds/sympy_1679009400182/work
 tables @ file:///C:/b/abs_52tcd9b9dp/croot/pytables_1685123233455/work
 tabulate @ file:///C:/ci_311/tabulate_1676494503192/work
-TBB==0.2
+TBB==2021.10.0
 tblib @ file:///Users/ktietz/demo/mc3/conda-bld/tblib_1629402031467/work
 tenacity @ file:///C:/b/abs_ddkoa9nju6/croot/tenacity_1682972298929/work
 terminado @ file:///C:/ci_311/terminado_1678228513830/work
