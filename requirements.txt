@@ -282,7 +282,7 @@ QtAwesome @ file:///C:/ci_311/qtawesome_1678402331535/work
 qtconsole @ file:///C:/b/abs_eb4u9jg07y/croot/qtconsole_1681402843494/work
 QtPy @ file:///C:/ci_311/qtpy_1676432558504/work
 queuelib==1.5.0
-readme-renderer==40.0
+readme-renderer==42.0
 referencing==0.30.2
 regex @ file:///C:/ci_311_rebuilds/regex_1679006156792/work
 requests==2.31.0
