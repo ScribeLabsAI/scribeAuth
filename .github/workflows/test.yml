@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  push:
+    branches: 
+      - master
+  pull_request:
+    branches: 
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      - name: Install deps
+        run: pip install -r requirements.txt        
+      - name: Run tests
+        run: python -m coverage run -m unittest
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          USER: ${{ secrets.USER }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
+          FEDERATED_POOL_ID: ${{ secrets.FEDERATED_POOL_ID }}
+      - name: Publish code coverage
+        uses: paambaati/codeclimate-action@v5.0.0
+        env:
+          CC_TEST_REPORTER_ID: {{ secrets.CC_TEST_REPORTER_ID }}
+        with:
+          coverageLocations: ${{github.workspace}}/.coverage

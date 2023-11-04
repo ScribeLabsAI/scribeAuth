@@ -7,3 +7,5 @@ tests/.env
 .pytest_cache
 .vscode
 auth
+venv
+.env
