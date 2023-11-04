@@ -371,7 +371,7 @@ wcwidth @ file:///Users/ktietz/demo/mc3/conda-bld/wcwidth_1629357192024/work
 webcolors==1.13
 webencodings==0.5.1
 websocket-client @ file:///C:/ci_311/websocket-client_1676426063281/work
-Werkzeug==2.3.6
+Werkzeug==3.0.1
 whatthepatch @ file:///C:/ci_311/whatthepatch_1678402578113/work
 widgetsnbextension==4.0.8
 win-inet-pton @ file:///C:/ci_311/win_inet_pton_1676425458225/work
