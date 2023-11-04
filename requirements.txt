@@ -16,7 +16,7 @@ argon2-cffi-bindings @ file:///C:/ci_311/argon2-cffi-bindings_1676424443321/work
 arrow @ file:///C:/ci_311/arrow_1678249767083/work
 astroid==2.15.6
 astropy==5.3.1
-asttokens==2.2.1
+asttokens==2.4.1
 async-timeout @ file:///C:/ci_311/async-timeout_1676431518331/work
 atomicwrites==1.4.1
 attrs==23.1.0
