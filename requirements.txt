@@ -103,7 +103,7 @@ huggingface-hub==0.16.4
 hvplot @ file:///C:/b/abs_2b13wifauw/croot/hvplot_1685998632349/work
 hyperlink @ file:///tmp/build/80754af9/hyperlink_1610130746837/work
 idna @ file:///C:/ci_311/idna_1676424932545/work
-imagecodecs==2023.7.10
+imagecodecs==2023.9.18
 imageio==2.31.1
 imagesize @ file:///C:/ci_311/imagesize_1676431905616/work
 imbalanced-learn==0.11.0
