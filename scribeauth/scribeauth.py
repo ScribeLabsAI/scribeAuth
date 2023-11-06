@@ -6,9 +6,7 @@ import botocore.session
 from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 from botocore.config import Config
-from botocore.exceptions import (
-    NoAuthTokenError,
-)
+from botocore.exceptions import NoAuthTokenError
 
 from typing_extensions import NotRequired, TypedDict, Unpack
 
@@ -153,9 +151,9 @@ class ScribeAuth:
                     return True
                 except Exception:
                     raise Exception("InternalServerError: try again later")
-        except MissingIdException as err:
-            raise err
-        except TooManyRequestsException:
+        except self.client_signed.exceptions.MissingIdException:
+            raise MissingIdException("Missing client ID")
+        except self.client_signed.exceptions.TooManyRequestsException:
             raise TooManyRequestsException("Too many requests. Try again later")
         except NoAuthTokenError as err:
             raise UnauthorizedException("Username and/or Password are incorrect.")
