@@ -1,1 +1,7 @@
-from .scribeauth import ScribeAuth, Tokens
+from .scribeauth import (
+    ScribeAuth,
+    Tokens,
+    ResourceNotFoundException,
+    MissingIdException,
+    UnauthorizedException,
+)

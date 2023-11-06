@@ -65,6 +65,10 @@ class MissingIdException(Exception):
     pass
 
 
+class ResourceNotFoundException(Exception):
+    pass
+
+
 class UnknownException(Exception):
     pass
 
@@ -302,6 +306,8 @@ class ScribeAuth:
                 raise UnauthorizedException("Could not retrieve federated credentials")
             if err.response["Error"]["Code"] == "TooManyRequestsException":
                 raise TooManyRequestsException("Too many requests. Try again later")
+            if err.response["Error"]["Code"] == "ResourceNotFoundException":
+                raise ResourceNotFoundException("Invalid federated_id")
             raise err
 
     def get_signature_for_request(self, request: AWSRequest, credentials: Credentials):

@@ -3,9 +3,13 @@ import unittest
 
 from botocore.awsrequest import AWSRequest
 from dotenv import load_dotenv
-
-from scribeauth import ScribeAuth, Tokens
-from scribeauth.scribeauth import MissingIdException, UnauthorizedException
+from scribeauth import (
+    ScribeAuth,
+    Tokens,
+    ResourceNotFoundException,
+    MissingIdException,
+    UnauthorizedException,
+)
 
 load_dotenv()
 
@@ -132,8 +136,9 @@ class TestScribeAuthFederatedCredentials(unittest.TestCase):
             username=username, password=password
         )
         id_token = user_tokens.get("id_token")
-        with self.assertRaises(UnauthorizedException):
-            pool_access.get_federated_credentials("id", id_token)
+        id = "eu-west-2:00000000-1111-2abc-3def-4444aaaa5555"
+        with self.assertRaises(ResourceNotFoundException):
+            pool_access.get_federated_credentials(id, id_token)
 
 
 class TestScribeAuthGetSignatureForRequest(unittest.TestCase):
