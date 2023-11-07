@@ -1,23 +1,29 @@
 import os
 import unittest
+from time import sleep
 
+import pyotp
 from botocore.awsrequest import AWSRequest
 from dotenv import load_dotenv
+
 from scribeauth import (
+    MissingIdException,
+    ResourceNotFoundException,
     ScribeAuth,
     Tokens,
-    ResourceNotFoundException,
-    MissingIdException,
     UnauthorizedException,
 )
 
 load_dotenv()
 
 client_id: str = os.environ.get("CLIENT_ID", "")
-username: str = os.environ.get("USER", "")
+username: str = os.environ.get("USERNAME", "")
+username2: str = os.environ.get("USERNAME2", "")
 password: str = os.environ.get("PASSWORD", "")
 user_pool_id: str = os.environ.get("USER_POOL_ID", "")
 federated_pool_id: str = os.environ.get("FEDERATED_POOL_ID", "")
+otp = pyotp.TOTP(os.environ.get("OTPCODE", ""))
+
 access = ScribeAuth({"client_id": client_id, "user_pool_id": user_pool_id})
 pool_access = ScribeAuth(
     {
@@ -28,9 +34,9 @@ pool_access = ScribeAuth(
 )
 
 
-class TestScribeAuthGetTokens(unittest.TestCase):
+class TestScribeAuthGetTokensNoMFA(unittest.TestCase):
     def test_get_tokens_username_password_successfully(self):
-        user_tokens: Tokens = access.get_tokens(username=username, password=password)
+        user_tokens = access.get_tokens(username=username, password=password)
         assert_tokens(self, user_tokens)
 
     def test_get_tokens_wrong_username_fails(self):
@@ -55,7 +61,7 @@ class TestScribeAuthGetTokens(unittest.TestCase):
 
     def test_get_tokens_refresh_token_successfully(self):
         refresh_token = generate_refresh_token_for_test()
-        user_tokens: Tokens = access.get_tokens(refresh_token=refresh_token)
+        user_tokens = access.get_tokens(refresh_token=refresh_token)
         assert_tokens(self, user_tokens)
         self.assertEqual(refresh_token, user_tokens.get("refresh_token"))
 
@@ -65,13 +71,49 @@ class TestScribeAuthGetTokens(unittest.TestCase):
 
     def test_get_tokens_refresh_token_multiple_params_successfully(self):
         refresh_token = generate_refresh_token_for_test()
-        user_tokens: Tokens = access.get_tokens(**{"refresh_token": refresh_token})
+        user_tokens = access.get_tokens(**{"refresh_token": refresh_token})
         assert_tokens(self, user_tokens)
         self.assertEqual(refresh_token, user_tokens.get("refresh_token"))
 
     def test_get_tokens_refresh_token_multiple_params_fails(self):
         with self.assertRaises(UnauthorizedException):
             access.get_tokens(**{"refresh_token": "refresh_token"})
+
+
+class TestScribeAuthGetTokensMFA(unittest.TestCase):
+    def test_get_tokens_asks_mfa(self):
+        challenge = access.get_tokens(username=username2, password=password)
+        self.assertEqual(challenge.get("challenge_name"), "SOFTWARE_TOKEN_MFA")
+
+    def test_get_tokens_username_password_successfully(self):
+        challenge = access.get_tokens(username=username2, password=password)
+        sleep(61)
+        user_tokens = access.respond_to_auth_challenge_mfa(
+            username=username2, session=challenge.get("session", ""), code=otp.now()
+        )
+        assert_tokens(self, user_tokens)
+
+    def test_get_tokens_refresh_token_successfully(self):
+        refresh_token = generate_refresh_token_for_test_with_mfa()
+        user_tokens = access.get_tokens(refresh_token=refresh_token)
+        assert_tokens(self, user_tokens)
+        self.assertEqual(refresh_token, user_tokens.get("refresh_token"))
+
+    def test_get_tokens_fails_with_wrong_mfa_code(self):
+        challenge = access.get_tokens(username=username2, password=password)
+        with self.assertRaises(UnauthorizedException):
+            access.respond_to_auth_challenge_mfa(
+                username=username2, session=challenge.get("session", ""), code="000000"
+            )
+
+    def test_get_tokens_fails_with_expired_mfa_code(self):
+        challenge = access.get_tokens(username=username2, password=password)
+        code = otp.now()
+        sleep(61)
+        with self.assertRaises(UnauthorizedException):
+            access.respond_to_auth_challenge_mfa(
+                username=username2, session=challenge.get("session", ""), code=code
+            )
 
 
 class TestScribeAuthRevokeRefreshTokens(unittest.TestCase):
@@ -93,16 +135,14 @@ class TestScribeAuthRevokeRefreshTokens(unittest.TestCase):
     ):
         refresh_token = generate_refresh_token_for_test()
         self.assertTrue(access.revoke_refresh_token("refresh_token"))
-        user_tokens: Tokens = access.get_tokens(refresh_token=refresh_token)
+        user_tokens = access.get_tokens(refresh_token=refresh_token)
         assert_tokens(self, user_tokens)
         self.assertEqual(refresh_token, user_tokens.get("refresh_token"))
 
 
 class TestScribeAuthFederatedCredentials(unittest.TestCase):
     def test_get_federated_id_successfully(self):
-        user_tokens: Tokens = pool_access.get_tokens(
-            username=username, password=password
-        )
+        user_tokens = pool_access.get_tokens(username=username, password=password)
         id_token = user_tokens.get("id_token")
         federated_id = pool_access.get_federated_id(id_token)
         self.assertTrue(federated_id)
@@ -112,15 +152,13 @@ class TestScribeAuthFederatedCredentials(unittest.TestCase):
             pool_access.get_federated_id("id_token")
 
     def test_get_federated_id_with_NO_identityPoolId_fails(self):
-        user_tokens: Tokens = access.get_tokens(username=username, password=password)
+        user_tokens = access.get_tokens(username=username, password=password)
         id_token = user_tokens.get("id_token")
         with self.assertRaises(MissingIdException):
             access.get_federated_id(id_token)
 
     def test_get_federated_credentials_successfully(self):
-        user_tokens: Tokens = pool_access.get_tokens(
-            username=username, password=password
-        )
+        user_tokens = pool_access.get_tokens(username=username, password=password)
         id_token = user_tokens.get("id_token")
         federated_id = pool_access.get_federated_id(id_token)
         federated_credentials = pool_access.get_federated_credentials(
@@ -132,9 +170,7 @@ class TestScribeAuthFederatedCredentials(unittest.TestCase):
         self.assertTrue(federated_credentials.get("Expiration"))
 
     def test_get_federated_credentials_fails(self):
-        user_tokens: Tokens = pool_access.get_tokens(
-            username=username, password=password
-        )
+        user_tokens = pool_access.get_tokens(username=username, password=password)
         id_token = user_tokens.get("id_token")
         id = "eu-west-2:00000000-1111-2abc-3def-4444aaaa5555"
         with self.assertRaises(ResourceNotFoundException):
@@ -143,9 +179,7 @@ class TestScribeAuthFederatedCredentials(unittest.TestCase):
 
 class TestScribeAuthGetSignatureForRequest(unittest.TestCase):
     def test_get_signature_for_request_successfully(self):
-        user_tokens: Tokens = pool_access.get_tokens(
-            username=username, password=password
-        )
+        user_tokens = pool_access.get_tokens(username=username, password=password)
         id_token = user_tokens.get("id_token")
         federated_id = pool_access.get_federated_id(id_token)
         federated_credentials = pool_access.get_federated_credentials(
@@ -162,7 +196,15 @@ def generate_refresh_token_for_test():
     return access.get_tokens(username=username, password=password).get("refresh_token")
 
 
+def generate_refresh_token_for_test_with_mfa():
+    challenge = access.get_tokens(username=username2, password=password)
+    return access.respond_to_auth_challenge_mfa(
+        username=username2, session=challenge.get("session", ""), code=otp.now()
+    ).get("refresh_token")
+
+
 def assert_tokens(self, user_tokens):
+    self.assertIsNone(user_tokens.get("challenge_name"))
     self.assertIsNotNone(user_tokens.get("refresh_token"))
     self.assertIsNotNone(user_tokens.get("access_token"))
     self.assertIsNotNone(user_tokens.get("id_token"))

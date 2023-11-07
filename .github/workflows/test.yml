@@ -21,11 +21,13 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt        
       - name: Run tests
-        run: python -m coverage run -m unittest
+        run: python -m coverage run -m pytest
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          USER: ${{ secrets.USER }}
+          USERNAME: ${{ secrets.USERNAME }}
+          USERNAME2: ${{ secrets.USERNAME2 }}
           PASSWORD: ${{ secrets.PASSWORD }}
+          OTPCODE: ${{ secrets.OTPCODE }}
           USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
           FEDERATED_POOL_ID: ${{ secrets.FEDERATED_POOL_ID }}
       - name: Publish code coverage
