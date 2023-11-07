@@ -133,7 +133,7 @@ class ScribeAuth:
             if challenge_name == None:
                 try:
                     auth_result = response_initiate.get("AuthenticationResult")
-                    access_token = auth_result.get("AccessToken")
+                    access_token = auth_result.get("AccessToken", "")
                     self.__change_password_cognito(password, new_password, access_token)
                     return True
                 except Exception as err:
@@ -146,7 +146,7 @@ class ScribeAuth:
                 required_attributes = challenge_parameters.get("requiredAttributes")
                 try:
                     if challenge_name == "NEW_PASSWORD_REQUIRED":
-                        user_id_SRP = challenge_parameters.get("USER_ID_FOR_SRP")
+                        user_id_SRP = challenge_parameters.get("USER_ID_FOR_SRP", "")
                         self.__respond_to_password_challenge(
                             username,
                             new_password,
@@ -231,6 +231,9 @@ class ScribeAuth:
             "Username and/or Password are missing or refresh_token is missing"
         )
 
+    def set_mfa_app(self):
+        self.client_signed
+
     def respond_to_auth_challenge_mfa(
         self, username: str, session: str, code: str
     ) -> Tokens:
@@ -240,9 +243,9 @@ class ScribeAuth:
         ----
         username -- Username (usually an email address).
 
-        session -- Challenge session.
+        session -- Challenge session coming from an authentication attempt.
 
-        code -- Code generated from an auth app.
+        code -- Code generated from the auth app.
 
         Returns
         -------
@@ -252,9 +255,9 @@ class ScribeAuth:
             response = self.__respond_to_mfa_challenge(username, session, code)
             result = response.get("AuthenticationResult")
             return {
-                "refresh_token": result.get("RefreshToken"),
-                "access_token": result.get("AccessToken"),
-                "id_token": result.get("IdToken"),
+                "refresh_token": result.get("RefreshToken", ""),
+                "access_token": result.get("AccessToken", ""),
+                "id_token": result.get("IdToken", ""),
             }
         except self.client_signed.exceptions.CodeMismatchException:
             raise UnauthorizedException("Wrong MFA code")
