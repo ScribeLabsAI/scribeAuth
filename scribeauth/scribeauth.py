@@ -225,6 +225,10 @@ class ScribeAuth:
         Returns
         -------
         Tokens -- Dictionary {"refresh_token": "str", "access_token": "str", "id_token": "str"}
+
+        or
+
+        Challenge -- Dictionary { "challenge_name": "str", "session": "str"}
         """
         refresh_token = param.get("refresh_token")
         username = param.get("username")
