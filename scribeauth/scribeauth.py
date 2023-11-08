@@ -1,5 +1,5 @@
-from typing import List
-
+from datetime import datetime
+from typing import overload
 import boto3
 import botocore
 import botocore.session
@@ -34,7 +34,7 @@ class Credentials(TypedDict):
     AccessKeyId: str
     SecretKey: str
     SessionToken: str
-    Expiration: str
+    Expiration: datetime
 
 
 class PoolConfiguration(TypedDict):
@@ -143,7 +143,6 @@ class ScribeAuth:
                     raise MissingIdException("Missing client ID")
                 session = response_initiate.get("Session")
                 challenge_parameters = response_initiate.get("ChallengeParameters")
-                required_attributes = challenge_parameters.get("requiredAttributes")
                 try:
                     if challenge_name == "NEW_PASSWORD_REQUIRED":
                         user_id_SRP = challenge_parameters.get("USER_ID_FOR_SRP", "")
@@ -152,14 +151,16 @@ class ScribeAuth:
                             new_password,
                             session,
                             user_id_SRP,
-                            required_attributes,
                         )
                         return True
                     else:
-                        return response_initiate
+                        return Challenge(
+                            challenge_name=response_initiate.get("ChallengeName"),
+                            session=response_initiate.get("Session"),
+                        )
                 except Exception:
                     raise Exception("InternalServerError: try again later")
-        except self.client_signed.exceptions.MissingIdException:
+        except self.client_signed.exceptions.ResourceNotFoundException:
             raise MissingIdException("Missing client ID")
         except self.client_signed.exceptions.TooManyRequestsException:
             raise TooManyRequestsException("Too many requests. Try again later")
@@ -200,9 +201,15 @@ class ScribeAuth:
         except Exception as err:
             raise err
 
-    def get_tokens(
-        self, **param: Unpack[UsernamePassword] | Unpack[RefreshToken]
-    ) -> Tokens | Challenge:
+    @overload
+    def get_tokens(self, **param: Unpack[UsernamePassword]) -> Tokens | Challenge:
+        ...
+
+    @overload
+    def get_tokens(self, **param: Unpack[RefreshToken]) -> Tokens | Challenge:
+        ...
+
+    def get_tokens(self, **param) -> Tokens | Challenge:
         """A user gets their tokens (refresh_token, access_token and id_token).
 
         Args
@@ -280,13 +287,12 @@ class ScribeAuth:
         -------
         bool
         """
-        response = self.__revoke_token(refresh_token)
-        status_code = response.get("ResponseMetadata").get("HTTPStatusCode")
-        if status_code == 200:
+        try:
+            self.__revoke_token(refresh_token)
             return True
-        if status_code == 400:  # pragma: no cover
+        except self.client_signed.exceptions.TooManyRequestsException:
             raise TooManyRequestsException("Too many requests. Try again later")
-        else:  # pragma: no cover
+        except Exception:
             raise Exception("InternalServerError: Try again later")
 
     def get_federated_id(self, id_token: str) -> str:
@@ -306,22 +312,27 @@ class ScribeAuth:
             raise MissingIdException(
                 "Federated pool ID is not provided. Create a new ScribeAuth object using identity_pool_id"
             )
-        try:
-            response = self.fed_client.get_id(
-                IdentityPoolId=self.identity_pool_id,
-                Logins={
-                    f"cognito-idp.eu-west-2.amazonaws.com/{self.user_pool_id}": id_token
-                },
+        if self.identity_pool_id is not None:
+            try:
+                response = self.fed_client.get_id(
+                    IdentityPoolId=self.identity_pool_id,
+                    Logins={
+                        f"cognito-idp.eu-west-2.amazonaws.com/{self.user_pool_id}": id_token
+                    },
+                )
+                if not response.get("IdentityId"):
+                    raise UnknownException("Could not retrieve federated id")
+                return response.get("IdentityId")
+            except self.fed_client.exceptions.NotAuthorizedException:
+                raise UnauthorizedException("Could not retrieve federated id")
+            except self.fed_client.exceptions.TooManyRequestsException:
+                raise TooManyRequestsException("Too many requests. Try again later")
+            except Exception as err:
+                raise err
+        else:
+            raise Exception(
+                "Federated pool ID is not provided. Create a new ScribeAuth object using identity_pool_id"
             )
-            if not response.get("IdentityId"):
-                raise UnknownException("Could not retrieve federated id")
-            return response.get("IdentityId")
-        except self.fed_client.exceptions.NotAuthorizedException:
-            raise UnauthorizedException("Could not retrieve federated id")
-        except self.fed_client.exceptions.TooManyRequestsException:
-            raise TooManyRequestsException("Too many requests. Try again later")
-        except Exception as err:
-            raise err
 
     def get_federated_credentials(self, id: str, id_token: str) -> Credentials:
         """A user gets their federated credentials (AccessKeyId, SecretKey and SessionToken).
@@ -349,9 +360,29 @@ class ScribeAuth:
                     f"cognito-idp.eu-west-2.amazonaws.com/{self.user_pool_id}": id_token
                 },
             )
-            if not is_complete_credentials(response["Credentials"]):
+            all_credentials = response.get("Credentials")
+            accessKeyId = all_credentials.get("AccessKeyId")
+            secretKey = all_credentials.get("SecretKey")
+            sessionToken = all_credentials.get("SessionToken")
+            expiration = all_credentials.get("Expiration")
+            if (
+                accessKeyId != None
+                and secretKey != None
+                and sessionToken != None
+                and expiration != None
+            ):
+                credentials = Credentials(
+                    AccessKeyId=accessKeyId,
+                    SecretKey=secretKey,
+                    SessionToken=sessionToken,
+                    Expiration=expiration,
+                )
+
+                if not is_complete_credentials(credentials):
+                    raise UnknownException("Could not retrieve tokens")
+                return credentials
+            else:
                 raise UnknownException("Could not retrieve federated credentials")
-            return response["Credentials"]
         except self.fed_client.exceptions.NotAuthorizedException:
             raise UnauthorizedException("Could not retrieve federated credentials")
         except self.fed_client.exceptions.TooManyRequestsException:
@@ -408,11 +439,21 @@ class ScribeAuth:
                         "session": response.get("Session"),
                     }
                 else:
-                    return {
-                        "refresh_token": result.get("RefreshToken"),
-                        "access_token": result.get("AccessToken"),
-                        "id_token": result.get("IdToken"),
-                    }
+                    refresh_token_resp = result.get("RefreshToken")
+                    access_token_resp = result.get("AccessToken")
+                    id_token_resp = result.get("IdToken")
+                    if (
+                        refresh_token_resp != None
+                        and access_token_resp != None
+                        and id_token_resp != None
+                    ):
+                        return Tokens(
+                            refresh_token=refresh_token_resp,
+                            access_token=access_token_resp,
+                            id_token=id_token_resp,
+                        )
+                    else:
+                        raise UnknownException("Could not get tokens")
             except:
                 raise UnauthorizedException(
                     "Username and/or Password are incorrect. Could not get tokens"
@@ -431,11 +472,16 @@ class ScribeAuth:
                 AuthParameters={"REFRESH_TOKEN": refresh_token},
             )
             result = response.get(auth_result)
-            return {
-                "refresh_token": refresh_token,
-                "access_token": result.get("AccessToken"),
-                "id_token": result.get("IdToken"),
-            }
+            access_token_resp = result.get("AccessToken")
+            id_token_resp = result.get("IdToken")
+            if access_token_resp != None and id_token_resp != None:
+                return Tokens(
+                    refresh_token=refresh_token,
+                    access_token=access_token_resp,
+                    id_token=id_token_resp,
+                )
+            else:
+                raise UnknownException("Could not get tokens")
         except:
             raise UnauthorizedException(
                 "Refresh_token is incorrect. Could not get tokens"
@@ -450,12 +496,7 @@ class ScribeAuth:
         return response
 
     def __respond_to_password_challenge(
-        self,
-        username: str,
-        new_password: str,
-        session: str,
-        user_id_SRP: str,
-        required_attributes: List[str],
+        self, username: str, new_password: str, session: str, user_id_SRP: str
     ):  # pragma: no cover
         response = self.client_signed.respond_to_auth_challenge(
             ClientId=self.client_id,
@@ -463,7 +504,6 @@ class ScribeAuth:
             Session=session,
             ChallengeResponses={
                 "USER_ID_FOR_SRP": user_id_SRP,
-                "requiredAttributes": required_attributes,
                 "USERNAME": username,
                 "NEW_PASSWORD": new_password,
             },
