@@ -231,9 +231,6 @@ class ScribeAuth:
             "Username and/or Password are missing or refresh_token is missing"
         )
 
-    def set_mfa_app(self):
-        self.client_signed
-
     def respond_to_auth_challenge_mfa(
         self, username: str, session: str, code: str
     ) -> Tokens:
@@ -246,6 +243,9 @@ class ScribeAuth:
         session -- Challenge session coming from an authentication attempt.
 
         code -- Code generated from the auth app.
+        session -- Challenge session.
+
+        code -- Code generated from an auth app.
 
         Returns
         -------

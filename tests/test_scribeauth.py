@@ -14,7 +14,7 @@ from scribeauth import (
     UnauthorizedException,
 )
 
-load_dotenv()
+load_dotenv(override=True)
 
 client_id: str = os.environ.get("CLIENT_ID", "")
 username: str = os.environ.get("USERNAME", "")
