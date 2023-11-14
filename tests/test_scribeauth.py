@@ -74,14 +74,15 @@ class TestScribeAuthGetTokensMFA(unittest.TestCase):
 
     def test_get_tokens_username_password_successfully(self):
         challenge = access.get_tokens(username=username2, password=password)
-        sleep(61)
         user_tokens = access.respond_to_auth_challenge_mfa(
             username=username2, session=challenge.get("session", ""), code=otp.now()
         )
+        sleep(61)
         assert_tokens(self, user_tokens)
 
     def test_get_tokens_refresh_token_successfully(self):
         refresh_token = generate_refresh_token_for_test_with_mfa()
+        sleep(61)
         user_tokens = access.get_tokens(refresh_token=refresh_token)
         assert_tokens(self, user_tokens)
         self.assertEqual(refresh_token, user_tokens.get("refresh_token"))
