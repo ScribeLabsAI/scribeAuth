@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.1](https://github.com/ScribeLabsAI/ScribeAuth/compare/1.1.0...1.1.1) (2023-11-20)
+
+
+### Dependencies
+
+* **deps:** bump boto3 from 1.28.78 to 1.29.3 ([#110](https://github.com/ScribeLabsAI/ScribeAuth/issues/110)) ([46a58c0](https://github.com/ScribeLabsAI/ScribeAuth/commit/46a58c0189de1c25d695eb8adfe52c27a2db7546))
+* **deps:** bump boto3-stubs from 1.28.80 to 1.28.84 ([#106](https://github.com/ScribeLabsAI/ScribeAuth/issues/106)) ([58a598f](https://github.com/ScribeLabsAI/ScribeAuth/commit/58a598f6157be7a4402de9dfd66f99fbd271f464))
+* **deps:** bump botocore from 1.31.78 to 1.32.3 ([#112](https://github.com/ScribeLabsAI/ScribeAuth/issues/112)) ([9d21d14](https://github.com/ScribeLabsAI/ScribeAuth/commit/9d21d1443894f5e32a3972f2542918572f240793))
+* **deps:** bump botocore-stubs from 1.31.79 to 1.31.84 ([#107](https://github.com/ScribeLabsAI/ScribeAuth/issues/107)) ([737fe4d](https://github.com/ScribeLabsAI/ScribeAuth/commit/737fe4d599bfc823dc18c5306447b38c17eceef2))
+* **deps:** bump keyring from 24.2.0 to 24.3.0 ([#104](https://github.com/ScribeLabsAI/ScribeAuth/issues/104)) ([9c09606](https://github.com/ScribeLabsAI/ScribeAuth/commit/9c096061b59304780293a60dd46cf33f7459ab65))
+* **deps:** bump mypy-boto3-cognito-identity from 1.28.36 to 1.29.0 ([#113](https://github.com/ScribeLabsAI/ScribeAuth/issues/113)) ([46f7ef1](https://github.com/ScribeLabsAI/ScribeAuth/commit/46f7ef1d9fe74e019242d15b4d0b20cee4f337d9))
+* **deps:** bump rich from 13.6.0 to 13.7.0 ([#114](https://github.com/ScribeLabsAI/ScribeAuth/issues/114)) ([4582cfb](https://github.com/ScribeLabsAI/ScribeAuth/commit/4582cfb00971b446e18e694a973273a79bab3b76))
+* **deps:** bump types-awscrt from 0.19.10 to 0.19.13 ([#111](https://github.com/ScribeLabsAI/ScribeAuth/issues/111)) ([e5a4070](https://github.com/ScribeLabsAI/ScribeAuth/commit/e5a4070fea5d44854db876bf21a1b704244c41ec))
+* **deps:** bump types-awscrt from 0.19.8 to 0.19.10 ([#105](https://github.com/ScribeLabsAI/ScribeAuth/issues/105)) ([57c38c1](https://github.com/ScribeLabsAI/ScribeAuth/commit/57c38c15f1ecb6e73af89d766246cc22738c299d))
+
 ## 1.1.0 (2023-11-08)
 
 
