@@ -20,7 +20,6 @@ jobs:
           package-name: 'scribeAuth'
           include-v-in-tag: false
           token: ${{ secrets.PATFORRELEASE }}
-          release-as: 1.1.0
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
       - uses: actions/setup-python@v4
