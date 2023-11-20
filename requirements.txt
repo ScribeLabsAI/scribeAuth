@@ -17,7 +17,7 @@ keyring==24.3.0
 markdown-it-py==3.0.0
 mdurl==0.1.2
 more-itertools==10.1.0
-mypy-boto3-cognito-identity==1.28.36
+mypy-boto3-cognito-identity==1.29.0
 mypy-boto3-cognito-idp==1.28.56
 nh3==0.2.14
 packaging==23.2
