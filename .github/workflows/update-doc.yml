@@ -29,7 +29,7 @@ jobs:
           destination_folder: 'docs/SDK/auth-python'
           destination_base_branch: 'master'
           destination_head_branch: 'auth-python-update'
-          commit_msg: 'Update Auth Python doc'
+          commit_msg: 'docs(authPython): Update Auth Python doc'
           pr_title: 'Update Auth Python doc'
           pull_request_reviewers: 'EHadoux'
           user_email: 'ailin@scribelabs.ai'

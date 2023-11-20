@@ -203,9 +203,12 @@ class ScribeAuth:
 
         It is possible to pass a UsernamePassword or a RefreshToken:
 
-        :param UsernamePassword: username (usually an email address) and password (associated with this username).
+        :param username: Username (usually an email address).
+        :param password: Password (associated with this username).
 
-        :param RefreshToken: refresh_token (refresh token to use).
+        Or
+
+        :param refresh_token: Refresh Token to use.
 
         It returns Tokens or a Challenge:
 
