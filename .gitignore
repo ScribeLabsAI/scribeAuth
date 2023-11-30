@@ -9,3 +9,4 @@ tests/.env
 auth
 venv
 .env
+docs

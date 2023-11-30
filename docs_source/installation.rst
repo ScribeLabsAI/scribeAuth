@@ -13,5 +13,5 @@ This library requires Python >= 3.10 that supports typings.
 --------------
 
 To flag an issue, open a ticket on
-`Github <https://github.com/ScribeLabsAI/ScribeAuth/issues>`__ and
+[Github](https://github.com/ScribeLabsAI/ScribeAuth/issues) and
 contact us on Intercom through the platform.

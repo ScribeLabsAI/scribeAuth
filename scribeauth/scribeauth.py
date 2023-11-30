@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import overload
+
 import boto3
 import botocore
 import botocore.session
@@ -113,12 +114,15 @@ class ScribeAuth:
         """Changes password for a user.
 
         :param username: Username (usually an email address).
+        :type username: str
 
         :param password: Password associated with this username.
+        :type password: str
 
         :param new_password: New password for this username.
+        :type new_password: str
 
-        :return: bool
+        :rtype: bool | Challenge
         """
         try:
             response_initiate = self.__initiate_auth(username, password)
@@ -168,12 +172,15 @@ class ScribeAuth:
         """Allows a user to enter a confirmation code sent to their email to reset a forgotten password.
 
         :param username: Username (usually an email address).
+        :type username: str
 
         :param password: Password associated with this username.
+        :type password: str
 
         :param confirmation_code: Confirmation code sent to the user's email.
+        :type confirmation_code: str
 
-        :return: bool
+        :rtype: bool
         """
         try:
             self.client_signed.confirm_forgot_password(
@@ -204,11 +211,14 @@ class ScribeAuth:
         It is possible to pass a UsernamePassword or a RefreshToken:
 
         :param username: Username (usually an email address).
+        :type username: str
         :param password: Password (associated with this username).
+        :type password: str
 
         Or
 
         :param refresh_token: Refresh Token to use.
+        :type refresh_token: str
 
         It returns Tokens or a Challenge:
 
@@ -234,10 +244,13 @@ class ScribeAuth:
         """Respond to an MFA auth challenge with a code generated from an auth app (e.g. Authy).
 
         :param username: Username (usually an email address).
+        :type username: str
 
         :param session: Challenge session coming from an authentication attempt.
+        :type session: str
 
         :param code: Code generated from the auth app.
+        :type code: str
 
         :return: Tokens -- Dictionary {"refresh_token": "str", "access_token": "str", "id_token": "str"}
         """
@@ -263,8 +276,9 @@ class ScribeAuth:
         After the token is revoked, the user cannot use the revoked token.
 
         :param refresh_token: Refresh token to be revoked.
+        :type refresh_token: str
 
-        :return: bool
+        :rtype: bool
         """
         try:
             self.__revoke_token(refresh_token)

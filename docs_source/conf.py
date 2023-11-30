@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Scribe Auth"
-copyright = "2022, Scribe Labs Limited"
+copyright = "2023, Scribe Labs Limited"
 author = "Ailin Venerus"
 release = "1.0.2"
 
@@ -27,6 +27,11 @@ exclude_patterns = []
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "alabaster"
-html_static_path = ["_static"]
+# html_static_path = ["_static"]
 
 source_dir = "./scribeauth"
+
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(".."))

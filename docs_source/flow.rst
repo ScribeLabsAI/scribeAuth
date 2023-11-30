@@ -3,7 +3,7 @@ Flow
 
 -  If you never have accessed your Scribe account, it probably still
    contains the temporary password we generated for you. You can change
-   it directly on the `platform <https://platform.scribelabs.ai>`__ or
+   it directly on the [platform](https://platform.scribelabs.ai) or
    with the ``change_password`` method. You won't be able to access
    anything else until the temporary password has been changed.
 
