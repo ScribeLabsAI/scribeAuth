@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/ScribeLabsAI/ScribeAuth/compare/1.1.1...1.2.0) (2023-11-29)
+
+
+### Features
+
+* create documentation to be published in ScribeLabs/documentation repo ([#103](https://github.com/ScribeLabsAI/ScribeAuth/issues/103)) ([4553d63](https://github.com/ScribeLabsAI/ScribeAuth/commit/4553d63655975d5223fe73d581b20f133d6e08d7))
+
+
+### Dependencies
+
+* **deps:** bump botocore from 1.32.3 to 1.32.7 ([#121](https://github.com/ScribeLabsAI/ScribeAuth/issues/121)) ([a410ea7](https://github.com/ScribeLabsAI/ScribeAuth/commit/a410ea7a385f1b3881ce2465b85d0d8d7ec187c0))
+* **deps:** bump certifi from 2023.7.22 to 2023.11.17 ([#116](https://github.com/ScribeLabsAI/ScribeAuth/issues/116)) ([fc13361](https://github.com/ScribeLabsAI/ScribeAuth/commit/fc133616e2b430129013564cb2902e543383fd6a))
+* **deps:** bump mypy-boto3-cognito-idp from 1.28.56 to 1.29.0 ([#117](https://github.com/ScribeLabsAI/ScribeAuth/issues/117)) ([48c1b66](https://github.com/ScribeLabsAI/ScribeAuth/commit/48c1b661ca60d223b91028a858fa08e19ea042e1))
+* **deps:** bump pygments from 2.16.1 to 2.17.2 ([#119](https://github.com/ScribeLabsAI/ScribeAuth/issues/119)) ([ce8ca56](https://github.com/ScribeLabsAI/ScribeAuth/commit/ce8ca5658db09d257cdf22d2631e931b61286693))
+
 ## [1.1.1](https://github.com/ScribeLabsAI/ScribeAuth/compare/1.1.0...1.1.1) (2023-11-20)
 
 
