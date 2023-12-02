@@ -58,5 +58,5 @@ types-awscrt==0.19.19
 types-s3transfer==0.8.2
 typing==3.7.4.3
 typing_extensions==4.8.0
-urllib3==2.1.0
+urllib3<2.1
 zipp==3.17.0
