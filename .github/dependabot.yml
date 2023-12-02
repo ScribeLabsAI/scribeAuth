@@ -15,7 +15,7 @@ updates:
     groups:
       prod-dependencies:
         dependency-type: 'production'
-        update-types: ['minor']
+        update-types: ['minor', 'patch']
   - package-ecosystem: 'github-actions' # See documentation for possible values
     directory: '/' # Location of package manifests
     schedule:
