@@ -13,8 +13,9 @@ updates:
       prefix: 'deps'
       include: 'scope'
     groups:
-      dev-dependencies:
-        dependency-type: 'development'
+      prod-dependencies:
+        dependency-type: 'production'
+        update-types: 'minor'
   - package-ecosystem: 'github-actions' # See documentation for possible values
     directory: '/' # Location of package manifests
     schedule:
