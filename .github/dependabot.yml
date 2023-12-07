@@ -10,7 +10,8 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: 'deps'
+      prefix: 'build'
+      prefix-development: 'chore'
       include: 'scope'
     groups:
       prod-dependencies:
@@ -21,5 +22,5 @@ updates:
     schedule:
       interval: 'weekly'
     commit-message:
-      prefix: 'deps'
+      prefix: 'chore'
       include: 'scope'
