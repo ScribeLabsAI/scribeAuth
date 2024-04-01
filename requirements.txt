@@ -32,7 +32,7 @@ Pygments==2.17.2
 pyotp==2.9.0
 pyproject_hooks==1.0.0
 pytest==8.1.1
-pytest-cov==4.1.0
+pytest-cov==5.0.0
 pytest-xdist==3.5.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
